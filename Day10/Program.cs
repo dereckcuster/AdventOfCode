@@ -42,32 +42,38 @@ namespace Day10
 
             return distribution[1] * distribution[3];
         }
-
         private static long GetJoltageArrangements(List<int> adapters)
         {
-            long arrangementsCount = 0;
-
+            adapters.Add(0);
             adapters.Sort();
             adapters.Add(adapters.Last() + 3);
-            adapters.Reverse();
 
-            long multiplier = 1;
+            return GetJoltageArrangementsFromIndex(adapters);
+        }
 
-            int previousJoltage1 = int.MaxValue;
-            int previousJoltage2 = int.MaxValue;
-            int previousJoltage3 = int.MaxValue;
+        static Dictionary<int, long> cache = new Dictionary<int, long>();
 
-            for (int index = 0; index < adapters.Count; index++)
-            {
-                var joltage = adapters[index];
-                               
+        private static long GetJoltageArrangementsFromIndex(List<int> adapters, int startIndex = 0)
+        {
+            if (cache.ContainsKey(startIndex))
+                return cache[startIndex];
 
-                previousJoltage3 = previousJoltage2;
-                previousJoltage2 = previousJoltage1;
-                previousJoltage1 = joltage;
-            }
+            if (startIndex == (adapters.Count - 1))
+                return 1;
 
-            return arrangementsCount + 1;
+            long arrangementsCount = GetJoltageArrangementsFromIndex(adapters, startIndex + 1);
+
+            if (startIndex < (adapters.Count - 2))
+                if ((adapters[startIndex + 2] - adapters[startIndex]) <= 3)
+                    arrangementsCount += GetJoltageArrangementsFromIndex(adapters, startIndex + 2);
+
+            if (startIndex < (adapters.Count - 3))
+                if ((adapters[startIndex + 3] - adapters[startIndex]) <= 3)
+                    arrangementsCount += GetJoltageArrangementsFromIndex(adapters, startIndex + 3);
+
+            cache[startIndex] = arrangementsCount;
+
+            return arrangementsCount;            
         }
     }
 }
